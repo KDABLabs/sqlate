@@ -1,0 +1,6 @@
+Makefile*
+build*
+*.o
+moc_*.*
+*.moc
+ui_*.*

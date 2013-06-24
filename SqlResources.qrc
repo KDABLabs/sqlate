@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/sql">
+        <file>procedures/pre-create/ACLTriggerFunctions.tsp</file>
+    </qresource>
+</RCC>
