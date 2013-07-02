@@ -29,6 +29,14 @@
 #define SQL_NAME( x ) \
    static QString sqlName() { return QLatin1String(x); }
 
+/** Define who can have admin rights for the table. Users belonging to the group specified here are treated as admin user.*/
+#define ADMIN_GROUP( x ) \
+   static QString adminGroup() { return QLatin1String(x); }
+
+/** Define the group name for regular users valid for this table.*/
+#define USER_GROUP( x ) \
+   static QString userGroup() { return QLatin1String(x); }
+
 /** Convenience macro to create column types.
  *  Use inside a table declaration.
  */
@@ -135,6 +143,37 @@ enum ColumnProperties
     OnDeleteRestrict = 32, ///< for foreign key constraints, restrict deletion.
     OnUserUpdateRestrict = 64, ///< Restrict update for regular users. For this to work there must be an is_administrator() stored procedure that checks if the current user is administrator or not.
     Notify = 128 ///< When an UPDATE is made on a row, emit a signal containing the content of the column for this row, and an encoded string corresponding to the column name.
+};
+
+
+/**Type trait to check if a table has the adminGroup method (ADMIN_GROUP macro was used in the definition)*/
+template <typename T>
+class hasAdminGroup
+{
+    struct Yes {char unused[1];};
+    struct No {char unused[2];};
+
+    template <typename C>
+    static Yes test(typeof(&C::adminGroup));
+    template <typename C>
+    static No test(...);
+public:
+    static const bool value = (sizeof(test<T>(0)) == sizeof(Yes));
+};
+
+/**Type trait to check if a table has the adminGroup method (USER_GROUP macro was used in the definition)*/
+template <typename T>
+class hasUserGroup
+{
+    struct Yes {char unused[1];};
+    struct No {char unused[2];};
+
+    template <typename C>
+    static Yes test(typeof(&C::userGroup));
+    template <typename C>
+    static No test(...);
+public:
+    static const bool value = (sizeof(test<T>(0)) == sizeof(Yes));
 };
 
 /**

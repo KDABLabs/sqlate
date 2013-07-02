@@ -31,7 +31,7 @@ struct permission_statement_creator {
     permission_statement_creator( QStringList &stmts ) : m_stmts( stmts ) {}
     template <typename T>
     void operator()( wrap<T> ) {
-        QString stmt = QLatin1Literal("GRANT SELECT, INSERT, UPDATE, DELETE ON ") % T::tableName() % QLatin1Literal(" TO GROUP sqladmins");
+        QString stmt = QLatin1Literal("GRANT SELECT, INSERT, UPDATE, DELETE ON ") % T::tableName() % QLatin1Literal(" TO GROUP ") % T::adminGroup();
         m_stmts.push_back( stmt );
         QStringList allowedOperations;
         allowedOperations << QLatin1String("SELECT");
@@ -46,7 +46,7 @@ struct permission_statement_creator {
                 allowedOperations << QLatin1String("INSERT");
             }
         }
-        stmt = QLatin1Literal("GRANT ") % allowedOperations.join(QLatin1String(", ")) %  QLatin1Literal(" ON ") % T::tableName() % QLatin1Literal(" TO GROUP sqlusers");
+        stmt = QLatin1Literal("GRANT ") % allowedOperations.join(QLatin1String(", ")) %  QLatin1Literal(" ON ") % T::tableName() % QLatin1Literal(" TO GROUP ") % T::userGroup();
         m_stmts.push_back( stmt );
 
     }

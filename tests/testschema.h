@@ -9,6 +9,8 @@
 namespace Sql {
 
 TABLE( Version, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "tblVersion" );
     COLUMN( version, int, NotNull );
@@ -16,27 +18,37 @@ TABLE( Version, SQLATE_EXPORT ) {
 };
 
 LOOKUP_TABLE( Prefix, SQLATE_EXPORT ) {
-     SQL_NAME( "lutPrefix" );
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
+    SQL_NAME( "lutPrefix" );
 };
 
 LOOKUP_TABLE( PersonRoles, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonRoles" );
     COLUMN( reportType, int, Default );
     typedef append<baseColumns, boost::mpl::vector<reportTypeType> >::type columns;
 };
 
 LOOKUP_TABLE( PersonSubRoles, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonSubRoles" );
     FOREIGN_KEY( PersonRole, PersonRoles, id, NotNull );
     typedef append<baseColumns, boost::mpl::vector<PersonRoleType> >::type columns;
 };
 
 LOOKUP_TABLE( PersonGrades, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonGrades" );
     FOREIGN_KEY( PersonRole, PersonRoles, id, NotNull|OnDeleteRestrict );
     typedef append<baseColumns, boost::mpl::vector<PersonRoleType> >::type columns;
 };
 TABLE( Person, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "tblPerson" );
     COLUMN( id, QUuid, PrimaryKey );
@@ -53,6 +65,8 @@ TABLE( Person, SQLATE_EXPORT ) {
 
 
 UNIQUE_RELATION( PersonSubRolesRelation, Person, id, PersonSubRoles, id, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "rltPersonSubRoles" );
     COLUMN_ALIAS( left, fk_tblPerson_id );
@@ -61,16 +75,22 @@ UNIQUE_RELATION( PersonSubRolesRelation, Person, id, PersonSubRoles, id, SQLATE_
 
 
 LOOKUP_TABLE( Directorates, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "lutDirectorates" );
 };
 
 LOOKUP_TABLE( SubDirectorates, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "lutSubDirectorates" );
     FOREIGN_KEY( Directorate, Directorates, id, NotNull );
     typedef append<baseColumns, boost::mpl::vector<DirectorateType> >::type columns;
 };
 
 UNIQUE_RELATION( PersonSubDirectoratesRelation, Person, id, SubDirectorates, id, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "rltPersonSubDirectorates" );
     COLUMN_ALIAS( left, fk_tblPerson_id );
@@ -78,6 +98,8 @@ UNIQUE_RELATION( PersonSubDirectoratesRelation, Person, id, SubDirectorates, id,
 };
 
 UNIQUE_RECURSIVE_RELATION( PersonBossRelation, Person, id, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "rltPersonBossRelation" );
     COLUMN( expires, QDateTime, Null );
@@ -87,6 +109,8 @@ UNIQUE_RECURSIVE_RELATION( PersonBossRelation, Person, id, SQLATE_EXPORT ) {
 };
 
 TABLE( WorkTask, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     NO_USER_DELETE
     SQL_NAME( "tblWorkTask" );
     COLUMN( ealStart, QDateTime, NotNull );
@@ -96,6 +120,8 @@ TABLE( WorkTask, SQLATE_EXPORT ) {
     typedef append<baseConstraints, boost::mpl::vector<UniqueConstraint<boost::mpl::vector<foreign_idType, ealEndType> > > >::type constraints;
 };
 TABLE( Workplace, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     ONLY_USER_SELECT
     SQL_NAME( "tblWorkplace" );
     COLUMN( id, QUuid, PrimaryKey | Notify );
@@ -108,6 +134,8 @@ TABLE( Workplace, SQLATE_EXPORT ) {
 };
 
 TABLE( Report, SQLATE_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     NO_USER_DELETE
     SQL_NAME( "tblReport" );
     COLUMN( id, QUuid, PrimaryKey );

@@ -13,12 +13,16 @@ using namespace Sql;
 namespace NewSql {
 
 TABLE( Version, NO_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "tblVersion" );
     COLUMN( version, int, NotNull );
     typedef boost::mpl::vector<versionType> columns;
 };
 
 TABLE( Existing, NO_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "tblExisting" );
     COLUMN( id, QUuid, PrimaryKey );
     COLUMN( column1, QString, NotNull, 128 );  // <-- column changed constraint to NotNull
@@ -27,6 +31,8 @@ TABLE( Existing, NO_EXPORT ) {
 };
 
 TABLE( New, NO_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "tblNew" );
     COLUMN( id, QUuid, PrimaryKey );
     COLUMN( column1, QString, Null, 42 );

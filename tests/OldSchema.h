@@ -13,12 +13,16 @@ using namespace Sql;
 namespace OldSql {
 
 TABLE( Version, NO_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "tblVersion" );
     COLUMN( version, int, NotNull );
     typedef boost::mpl::vector<versionType> columns;
 };
 
 TABLE( Existing, NO_EXPORT ) {
+    ADMIN_GROUP("sqladmins")
+    USER_GROUP("sqlusers")
     SQL_NAME( "tblExisting" );
     COLUMN( id, QUuid, PrimaryKey );
     COLUMN( column1, QString, Null, 128 );

@@ -146,7 +146,7 @@ void TestBase::createEmptyDb()
 
     dropTables();
 
-    executePreCreateScripts(QLatin1String(":/sql"));
+    executePreCreateScripts(QLatin1String(":/sqlate"));
     // create tables
     try {
         Sql::createMissingTables<Sql::SQLateTestSchema>();

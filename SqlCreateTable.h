@@ -28,6 +28,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/placeholders.hpp>
+#include <boost/static_assert.hpp>
 
 #include <algorithm>
 
@@ -236,6 +237,8 @@ struct table_trigger_creator
 template <typename T>
 QString createTableStatement()
 {
+    BOOST_STATIC_ASSERT((hasAdminGroup<T>::value));
+    BOOST_STATIC_ASSERT((hasUserGroup<T>::value));
     QStringList cols;
     detail::column_creator accu( cols );
     boost::mpl::for_each<typename T::columns, detail::wrap<boost::mpl::placeholders::_1> >( accu );
