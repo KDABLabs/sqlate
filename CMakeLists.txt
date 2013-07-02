@@ -18,7 +18,20 @@ else (ANDROID)
 endif()
 
 find_package(Boost 1.40 REQUIRED)
-add_definitions( -DBOOST_MPL_LIMIT_VECTOR_SIZE=50 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS )
+
+#the user of the library might have defined a larger size
+set(MPL_LIMIT_DEFINED "FALSE")
+get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+foreach(define ${DirDefs})
+    if (${define} MATCHES "BOOST_MPL_LIMIT_VECTOR_SIZE=.*")
+        set(MPL_LIMIT_DEFINED "TRUE")
+    endif()
+endforeach()
+if (NOT ${MPL_LIMIT_DEFINED})
+    add_definitions( -DBOOST_MPL_LIMIT_VECTOR_SIZE=50)
+endif()
+
+add_definitions( -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS )
 add_definitions( -DQT_STRICT_ITERATORS )
 add_definitions( -DQT_NO_CAST_FROM_ASCII )
 add_definitions( -DQT_NO_CAST_TO_ASCII )
