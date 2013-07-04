@@ -38,6 +38,10 @@ add_definitions( -DQT_NO_CAST_TO_ASCII )
 add_definitions( -DQT_NO_CAST_FROM_BYTEARRAY )
 add_definitions( -DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+endif()
+
 enable_testing()
 
 if(APPLE)

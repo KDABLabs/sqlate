@@ -146,35 +146,25 @@ enum ColumnProperties
 };
 
 
-/**Type trait to check if a table has the adminGroup method (ADMIN_GROUP macro was used in the definition)*/
-template <typename T>
-class hasAdminGroup
-{
-    struct Yes {char unused[1];};
-    struct No {char unused[2];};
+/**Type trait to check if a class has a certain method*/
 
-    template <typename C>
-    static Yes test(typeof(&C::adminGroup));
-    template <typename C>
-    static No test(...);
-public:
-    static const bool value = (sizeof(test<T>(0)) == sizeof(Yes));
+#define HAS_MEMBER_METHOD(name, method) \
+template <typename T>                   \
+class name                              \
+{                                       \
+    struct Yes {char unused[1];};       \
+    struct No {char unused[2];};        \
+                                        \
+    template <typename C>               \
+    static Yes test(decltype(std::declval< const C>().method())*); \
+    template <typename C>               \
+    static No test(...);                \
+public:                                 \
+    static const bool value = (sizeof(test<T>(0)) == sizeof(Yes)); \
 };
 
-/**Type trait to check if a table has the adminGroup method (USER_GROUP macro was used in the definition)*/
-template <typename T>
-class hasUserGroup
-{
-    struct Yes {char unused[1];};
-    struct No {char unused[2];};
-
-    template <typename C>
-    static Yes test(typeof(&C::userGroup));
-    template <typename C>
-    static No test(...);
-public:
-    static const bool value = (sizeof(test<T>(0)) == sizeof(Yes));
-};
+HAS_MEMBER_METHOD(hasAdminGroup, adminGroup);
+HAS_MEMBER_METHOD(hasUserGroup, userGroup);
 
 /**
  * Multi-column uniqeness table constraint.
