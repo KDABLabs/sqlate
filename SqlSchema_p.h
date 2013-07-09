@@ -19,6 +19,8 @@
 #include <boost/preprocessor/comma_if.hpp>
 #include <boost/preprocessor/seq.hpp>
 
+#include <utility>
+
 /**
  * @file SqlSchema_p.h
  * Database schema related internal classes and functions.
