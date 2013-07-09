@@ -1,5 +1,7 @@
 #include <QtTest/QtTest> //Windows needs it as the first include
 
+#include "SchemaUpdater.h" //must be the first include to avoid ambigous operator overload warnings
+
 #include "testschema.h"
 #include "testbase.h"
 #include "OldSchema.h"
@@ -14,7 +16,6 @@ namespace NewSql {
 #include "SqlSchema.h"
 #include "SqlQuery.h"
 #include "SqlSelect.h"
-#include "SchemaUpdater.h"
 #include "SqlInsertQueryBuilder.h"
 #include "SqlUtils.h"
 #include "SqlExceptions.h"
