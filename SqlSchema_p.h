@@ -150,6 +150,7 @@ enum ColumnProperties
 
 /**Type trait to check if a class has a certain method*/
 
+#ifdef __GCC__
 #define HAS_MEMBER_METHOD(name, method) \
 template <typename T>                   \
 class name                              \
@@ -164,7 +165,15 @@ class name                              \
 public:                                 \
     static const bool value = (sizeof(test<T>(0)) == sizeof(Yes)); \
 };
-
+#else
+#define HAS_MEMBER_METHOD(name, method) \
+    template <typename T>                   \
+    class name                              \
+    {                                       \
+    public:                                 \
+        static const bool value = true; \
+    };
+#endif
 HAS_MEMBER_METHOD(hasAdminGroup, adminGroup);
 HAS_MEMBER_METHOD(hasUserGroup, userGroup);
 
