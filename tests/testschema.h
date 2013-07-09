@@ -2,13 +2,14 @@
 #define TESTSCHEMA_H
 
 #include "SqlSchema_p.h"
-#include "sqlate_export.h"
 
 #include <QDateTime>
 
 namespace Sql {
 
-TABLE( Version, SQLATE_EXPORT ) {
+#define TEST_EXPORT
+
+TABLE( Version, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -17,13 +18,13 @@ TABLE( Version, SQLATE_EXPORT ) {
     typedef boost::mpl::vector<versionType> columns;
 };
 
-LOOKUP_TABLE( Prefix, SQLATE_EXPORT ) {
+LOOKUP_TABLE( Prefix, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutPrefix" );
 };
 
-LOOKUP_TABLE( PersonRoles, SQLATE_EXPORT ) {
+LOOKUP_TABLE( PersonRoles, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonRoles" );
@@ -31,7 +32,7 @@ LOOKUP_TABLE( PersonRoles, SQLATE_EXPORT ) {
     typedef append<baseColumns, boost::mpl::vector<reportTypeType> >::type columns;
 };
 
-LOOKUP_TABLE( PersonSubRoles, SQLATE_EXPORT ) {
+LOOKUP_TABLE( PersonSubRoles, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonSubRoles" );
@@ -39,14 +40,14 @@ LOOKUP_TABLE( PersonSubRoles, SQLATE_EXPORT ) {
     typedef append<baseColumns, boost::mpl::vector<PersonRoleType> >::type columns;
 };
 
-LOOKUP_TABLE( PersonGrades, SQLATE_EXPORT ) {
+LOOKUP_TABLE( PersonGrades, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutPersonGrades" );
     FOREIGN_KEY( PersonRole, PersonRoles, id, NotNull|OnDeleteRestrict );
     typedef append<baseColumns, boost::mpl::vector<PersonRoleType> >::type columns;
 };
-TABLE( Person, SQLATE_EXPORT ) {
+TABLE( Person, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -64,7 +65,7 @@ TABLE( Person, SQLATE_EXPORT ) {
 };
 
 
-UNIQUE_RELATION( PersonSubRolesRelation, Person, id, PersonSubRoles, id, SQLATE_EXPORT ) {
+UNIQUE_RELATION( PersonSubRolesRelation, Person, id, PersonSubRoles, id, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -74,13 +75,13 @@ UNIQUE_RELATION( PersonSubRolesRelation, Person, id, PersonSubRoles, id, SQLATE_
 };
 
 
-LOOKUP_TABLE( Directorates, SQLATE_EXPORT ) {
+LOOKUP_TABLE( Directorates, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutDirectorates" );
 };
 
-LOOKUP_TABLE( SubDirectorates, SQLATE_EXPORT ) {
+LOOKUP_TABLE( SubDirectorates, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     SQL_NAME( "lutSubDirectorates" );
@@ -88,7 +89,7 @@ LOOKUP_TABLE( SubDirectorates, SQLATE_EXPORT ) {
     typedef append<baseColumns, boost::mpl::vector<DirectorateType> >::type columns;
 };
 
-UNIQUE_RELATION( PersonSubDirectoratesRelation, Person, id, SubDirectorates, id, SQLATE_EXPORT ) {
+UNIQUE_RELATION( PersonSubDirectoratesRelation, Person, id, SubDirectorates, id, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -97,7 +98,7 @@ UNIQUE_RELATION( PersonSubDirectoratesRelation, Person, id, SubDirectorates, id,
     COLUMN_ALIAS( right, fk_lutSubDirectorates_id );
 };
 
-UNIQUE_RECURSIVE_RELATION( PersonBossRelation, Person, id, SQLATE_EXPORT ) {
+UNIQUE_RECURSIVE_RELATION( PersonBossRelation, Person, id, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -108,7 +109,7 @@ UNIQUE_RECURSIVE_RELATION( PersonBossRelation, Person, id, SQLATE_EXPORT ) {
     typedef append<baseColumns, boost::mpl::vector<expiresType> >::type columns;
 };
 
-TABLE( WorkTask, SQLATE_EXPORT ) {
+TABLE( WorkTask, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     NO_USER_DELETE
@@ -119,7 +120,7 @@ TABLE( WorkTask, SQLATE_EXPORT ) {
     typedef boost::mpl::vector<ealStartType, ealEndType, foreign_idType> columns;
     typedef append<baseConstraints, boost::mpl::vector<UniqueConstraint<boost::mpl::vector<foreign_idType, ealEndType> > > >::type constraints;
 };
-TABLE( Workplace, SQLATE_EXPORT ) {
+TABLE( Workplace, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     ONLY_USER_SELECT
@@ -133,7 +134,7 @@ TABLE( Workplace, SQLATE_EXPORT ) {
     typedef boost::mpl::vector<idType,  itemorderType, short_descType, descriptionType, contact_telType, contact_faxType> columns;
 };
 
-TABLE( Report, SQLATE_EXPORT ) {
+TABLE( Report, TEST_EXPORT ) {
     ADMIN_GROUP("sqladmins")
     USER_GROUP("sqlusers")
     NO_USER_DELETE
