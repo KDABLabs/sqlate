@@ -38,8 +38,16 @@ void TestBase::openDbTest()
         dbHost = QLatin1String("127.0.0.1");
     }
 
-    QString dbUser = QLatin1String( "sqlate.user" );
-    QString dbPassword = QLatin1String("sql123456" );
+    QString dbUser = QLatin1String( qgetenv("SQLATE_DATABASE_USER").constData() );
+    if (dbUser.isEmpty()) {
+        dbUser = QLatin1String( "sqlate.user" );
+    }
+
+    QString dbPassword = QLatin1String( qgetenv("SQLATE_DATABASE_PASSWORD").constData() );
+    if (dbPassword.isEmpty()) {
+        dbPassword = QLatin1String( "sql123456" );
+    }
+
     int dbPort = getDbPort();
     qDebug() << "Using database: " << dbName << " on host " << dbHost << " port: " << dbPort;
     db.setHostName( dbHost );

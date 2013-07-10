@@ -10,6 +10,15 @@ if (NOT SQLATE_DATABASE_HOST)
   set(SQLATE_DATABASE_HOST "sqlate-postgres")
 endif()
 
+if (NOT SQLATE_DATABASE_USER)
+  set(SQLATE_DATABASE_USER "sqlate.user")
+endif()
+
+if (NOT SQLATE_DATABASE_PASSWORD)
+  set(SQLATE_DATABASE_PASSWORD "sql123456")
+endif()
+
+
 set(testcommon_srcs testbase.cpp testschema.cpp )
 add_library(testcommon STATIC ${testcommon_srcs})
 
@@ -29,7 +38,9 @@ macro(add_sql_unittest_testbase _source)
   add_executable(${_name} ${_source})
 
   add_test(NAME sql-${_name} COMMAND ${_name})
-  set_tests_properties(sql-${_name} PROPERTIES ENVIRONMENT "SQLATE_DATABASE_HOST=${SQLATE_DATABASE_HOST};SQLATE_DATABASE_NAME=sqlate_test_${HOSTNAME}")
+  set_tests_properties(sql-${_name} PROPERTIES ENVIRONMENT
+    "SQLATE_DATABASE_HOST=${SQLATE_DATABASE_HOST};SQLATE_DATABASE_NAME=sqlate_test_${HOSTNAME};SQLATE_DATABASE_USER=${SQLATE_DATABASE_USER};SQLATE_DATABASE_PASSWORD=${SQLATE_DATABASE_PASSWORD}"
+  )
   target_link_libraries(${_name} ${QT_QTCORE_LIBRARY} ${QT_QTTEST_LIBRARY}
       ${QT_QTSQL_LIBRARY} sqlate testcommon)
 endmacro()
