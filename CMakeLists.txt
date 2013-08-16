@@ -126,7 +126,12 @@ if (NOT ANDROID)
   )
 endif()
 
-target_link_libraries(sqlate ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
+target_link_libraries(sqlate
+  LINK_PUBLIC
+    Qt4::QtGui
+    Qt4::QtSql
+    Qt4::QtCore
+)
 
 if(NOT APPLE AND NOT ANDROID)
   install(TARGETS sqlate EXPORT sqlateTargets
@@ -160,7 +165,7 @@ if(NOT APPLE AND NOT ANDROID)
 endif()
 
 add_executable(sqlschema2dot sqlschema2dot.cpp)
-target_link_libraries(sqlschema2dot  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY} sqlate)
+target_link_libraries(sqlschema2dot sqlate)
 
 add_custom_target(schema-graph
   ${CMAKE_CURRENT_BINARY_DIR}/sqlschema2dot > sqlschema.dot &&

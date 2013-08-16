@@ -34,7 +34,7 @@ macro(add_sql_unittest _source)
 
   add_executable(${_name} ${_source})
   add_test(NAME sql-${_name} COMMAND ${_name})
-  target_link_libraries(${_name} sqlate testcommon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTTEST_LIBRARY} ${QT_QTSQL_LIBRARY})
+  target_link_libraries(${_name} sqlate testcommon Qt4::QtTest)
 endmacro()
 
 #macro for test needing db access (they derive from TestBase)
@@ -47,8 +47,8 @@ macro(add_sql_unittest_testbase _source)
   set_tests_properties(sql-${_name} PROPERTIES ENVIRONMENT
     "SQLATE_DATABASE_HOST=${SQLATE_DATABASE_HOST};SQLATE_DATABASE_NAME=sqlate_test_${HOSTNAME};SQLATE_DATABASE_USER=${SQLATE_DATABASE_USER};SQLATE_DATABASE_PASSWORD=${SQLATE_DATABASE_PASSWORD}"
   )
-  target_link_libraries(${_name} ${QT_QTCORE_LIBRARY} ${QT_QTTEST_LIBRARY}
-      ${QT_QTSQL_LIBRARY} sqlate testcommon)
+  target_link_libraries(${_name} Qt4::QtTest
+      sqlate testcommon)
 endmacro()
 
 add_sql_unittest(schematest.cpp)
