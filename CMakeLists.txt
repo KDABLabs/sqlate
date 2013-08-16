@@ -76,6 +76,37 @@ set(SQLATE_SRCS
   SqlQueryCache.cpp
 )
 
+install(FILES
+  PostgresSchema.h
+  SchemaUpdater.h
+  SqlConditionalQueryBuilderBase.h
+  SqlCondition.h
+  SqlCreateRule.h
+  SqlCreateTable.h
+  SqlDeleteQueryBuilder.h
+  SqlExceptions.h
+  SqlGlobal.h
+  SqlGrantPermission.h
+  SqlGraphviz.h
+  Sql.h
+  SqlInsertQueryBuilder.h
+  SqlInternals_p.h
+  SqlMonitor.h
+  SqlQueryBuilderBase.h
+  SqlQueryCache.h
+  SqlQuery.h
+  SqlQueryManager.h
+  SqlQueryWatcher.h
+  SqlSchema.h
+  SqlSchema_p.h
+  SqlSelect.h
+  SqlSelectQueryBuilder.h
+  SqlTransaction.h
+  SqlUpdateQueryBuilder.h
+  SqlUtils.h
+  ${CMAKE_CURRENT_BINARY_DIR}/sqlate_export.h
+  DESTINATION ${INCLUDE_INSTALL_DIR})
+
 qt4_add_resources(sql_resources SqlResources.qrc )
 
 include(GenerateExportHeader)
