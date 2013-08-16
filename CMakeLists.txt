@@ -1,7 +1,10 @@
 project(sqlatelib)
 
 cmake_minimum_required(VERSION 2.8.7)
-set(CMAKE_AUTOMOC true)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
 option(SQL_ENABLE_NETWORK_WATCHER "Enable the watcher threads for SQL queries over the network. The default is disabled." FALSE)
 
 if (SQL_ENABLE_NETWORK_WATCHER)
@@ -64,9 +67,7 @@ elseif(NOT ANDROID)
     set(PLUGIN_INSTALL_DIR "${LIB_INSTALL_DIR}/plugins")
 endif()
 
-include_directories( ${CMAKE_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}
-    ${QT_INCLUDES})
+include_directories(${QT_INCLUDES})
 
 set(SQLATE_SRCS
     kdthreadrunner.cpp

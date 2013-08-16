@@ -2,9 +2,11 @@ site_name(HOSTNAME)
 string(REPLACE "-" "_" HOSTNAME ${HOSTNAME})
 string(REPLACE "." "_" HOSTNAME ${HOSTNAME})
 
-include_directories(${CMAKE_BINARY_DIR}/tests
-${CMAKE_CURRENT_SOURCE_DIR}/foo
-${CMAKE_SOURCE_DIR} )
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/foo
+)
 
 if (NOT SQLATE_DATABASE_HOST)
   set(SQLATE_DATABASE_HOST "sqlate-postgres")
