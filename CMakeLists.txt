@@ -1,6 +1,4 @@
 project(sqlatelib)
-set(SQLATE_LIBRARY_VERSION 0)
-set(SQLATE_LIBRARY_SO_VERSION 1)
 
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_AUTOMOC true)
@@ -95,6 +93,9 @@ set(SQLATE_SRCS
 qt4_add_resources(sql_resources SqlResources.qrc )
 
 add_library(sqlate SHARED ${SQLATE_SRCS} ${sql_resources})
+
+set(SQLATE_LIBRARY_VERSION 0.1.0)
+set(SQLATE_LIBRARY_SO_VERSION 0)
 
 if (NOT ANDROID)
 set_target_properties(sqlate PROPERTIES
