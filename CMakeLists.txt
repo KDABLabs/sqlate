@@ -177,12 +177,4 @@ if(NOT APPLE AND NOT ANDROID)
   )
 endif()
 
-add_executable(sqlschema2dot sqlschema2dot.cpp)
-target_link_libraries(sqlschema2dot sqlate)
-
-add_custom_target(schema-graph
-  ${CMAKE_CURRENT_BINARY_DIR}/sqlschema2dot > sqlschema.dot &&
-  dot -Tpng sqlschema.dot > sqlschema.png
-)
-
 add_subdirectory(tests)
