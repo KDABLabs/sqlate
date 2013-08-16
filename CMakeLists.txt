@@ -92,7 +92,10 @@ set(SQLATE_SRCS
 
 qt4_add_resources(sql_resources SqlResources.qrc )
 
+include(GenerateExportHeader)
+
 add_library(sqlate SHARED ${SQLATE_SRCS} ${sql_resources})
+generate_export_header(sqlate)
 
 set(SQLATE_LIBRARY_VERSION 0.1.0)
 set(SQLATE_LIBRARY_SO_VERSION 0)
@@ -103,10 +106,6 @@ set_target_properties(sqlate PROPERTIES
         SOVERSION ${SQLATE_LIBRARY_SO_VERSION}
 )
 endif()
-
-set_target_properties(sqlate PROPERTIES
-        DEFINE_SYMBOL SQLATE_BUILD_SQLATE_LIB
-)
 
 target_link_libraries(sqlate ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
 
