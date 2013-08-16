@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8.7)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
 option(SQL_ENABLE_NETWORK_WATCHER "Enable the watcher threads for SQL queries over the network. The default is disabled." FALSE)
 
@@ -113,6 +114,7 @@ include(GenerateExportHeader)
 
 add_library(sqlate SHARED ${SQLATE_SRCS} ${sql_resources})
 generate_export_header(sqlate)
+set_property(TARGET sqlate PROPERTY EXPORT_NAME Sqlate)
 
 set(SQLATE_LIBRARY_VERSION 0.1.0)
 set(SQLATE_LIBRARY_SO_VERSION 0)
@@ -131,6 +133,29 @@ if(NOT APPLE AND NOT ANDROID)
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+  )
+  install(EXPORT sqlateTargets
+    NAMESPACE ::
+    FILE SqlateConfig.cmake
+    DESTINATION lib/cmake
+  )
+
+  set_property(TARGET sqlate APPEND PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
+  )
+
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file("${CMAKE_BINARY_DIR}/SqlateConfigVersion.cmake"
+    VERSION ${SQLATE_LIBRARY_VERSION}
+    COMPATIBILITY AnyNewerVersion
+  )
+  install(FILES
+    "${CMAKE_BINARY_DIR}/SqlateConfigVersion.cmake"
+    DESTINATION lib/cmake
+  )
+  export(TARGETS sqlate
+    NAMESPACE ::
+    FILE SqlateConfig.cmake
   )
 endif()
 
