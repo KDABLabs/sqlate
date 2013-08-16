@@ -4,7 +4,6 @@
 #include <QMutexLocker>
 #include <QtCore/QThread>
 
-#include "pimpl_ptr.h"
 #include "sqlate_export.h"
 
 class SQLATE_EXPORT KDThreadRunnerBase : public QThread
@@ -24,7 +23,7 @@ protected:
 
 private:
     class Private;
-    kdtools::pimpl_ptr< Private > d;
+    QScopedPointer<Private> d;
 };
 
 template <class T>
