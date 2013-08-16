@@ -1,6 +1,6 @@
 project(sqlatelib)
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.7)
 set(CMAKE_AUTOMOC true)
 option(SQL_ENABLE_NETWORK_WATCHER "Enable the watcher threads for SQL queries over the network. The default is disabled." FALSE)
 
