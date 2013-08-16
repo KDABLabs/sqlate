@@ -137,7 +137,7 @@ if(NOT APPLE AND NOT ANDROID)
   install(EXPORT sqlateTargets
     NAMESPACE ::
     FILE SqlateConfig.cmake
-    DESTINATION lib/cmake
+    DESTINATION lib/cmake/Sqlate
   )
 
   set_property(TARGET sqlate APPEND PROPERTY
@@ -151,7 +151,7 @@ if(NOT APPLE AND NOT ANDROID)
   )
   install(FILES
     "${CMAKE_BINARY_DIR}/SqlateConfigVersion.cmake"
-    DESTINATION lib/cmake
+    DESTINATION lib/cmake/Sqlate
   )
   export(TARGETS sqlate
     NAMESPACE ::
