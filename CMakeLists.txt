@@ -73,7 +73,6 @@ set(SQLATE_SRCS
   SqlQueryWatcher.cpp
   SqlUtils.cpp
   PostgresSchema.cpp
-  SchemaUpdater.cpp
   SqlQueryCache.cpp
 )
 
@@ -115,26 +114,34 @@ include(GenerateExportHeader)
 add_library(sqlate SHARED ${SQLATE_SRCS} ${sql_resources})
 generate_export_header(sqlate)
 set_property(TARGET sqlate PROPERTY EXPORT_NAME Sqlate)
+target_link_libraries(sqlate
+  LINK_PUBLIC
+    Qt4::QtSql
+    Qt4::QtCore
+)
+
+add_library(sqlate_schemaupdate SHARED SchemaUpdater.cpp)
+generate_export_header(sqlate_schemaupdate)
+set_property(TARGET sqlate_schemaupdate PROPERTY EXPORT_NAME SqlateSchemaUpdate)
+target_link_libraries(sqlate_schemaupdate
+  LINK_PUBLIC
+    sqlate
+    Qt4::QtGui
+)
 
 set(SQLATE_LIBRARY_VERSION 0.1.0)
 set(SQLATE_LIBRARY_SO_VERSION 0)
 
 if (NOT ANDROID)
-  set_target_properties(sqlate PROPERTIES
+  set_target_properties(sqlate sqlate_schemaupdate PROPERTIES
           VERSION ${SQLATE_LIBRARY_VERSION}
           SOVERSION ${SQLATE_LIBRARY_SO_VERSION}
   )
 endif()
 
-target_link_libraries(sqlate
-  LINK_PUBLIC
-    Qt4::QtGui
-    Qt4::QtSql
-    Qt4::QtCore
-)
 
 if(NOT APPLE AND NOT ANDROID)
-  install(TARGETS sqlate EXPORT sqlateTargets
+  install(TARGETS sqlate sqlate_schemaupdate EXPORT sqlateTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
@@ -145,11 +152,11 @@ if(NOT APPLE AND NOT ANDROID)
     DESTINATION lib/cmake/Sqlate
   )
 
-  set_property(TARGET sqlate APPEND PROPERTY
+  set_property(TARGET sqlate sqlate_schemaupdate APPEND PROPERTY
     INTERFACE_INCLUDE_DIRECTORIES
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
   )
-  set_property(TARGET sqlate APPEND PROPERTY
+  set_property(TARGET sqlate sqlate_schemaupdate APPEND PROPERTY
     INTERFACE_COMPILE_DEFINITIONS
       BOOST_MPL_LIMIT_VECTOR_SIZE=50
       BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
@@ -164,7 +171,7 @@ if(NOT APPLE AND NOT ANDROID)
     "${CMAKE_BINARY_DIR}/SqlateConfigVersion.cmake"
     DESTINATION lib/cmake/Sqlate
   )
-  export(TARGETS sqlate
+  export(TARGETS sqlate sqlate_schemaupdate
     NAMESPACE ::
     FILE SqlateConfig.cmake
   )

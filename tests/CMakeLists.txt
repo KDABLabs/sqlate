@@ -48,7 +48,7 @@ macro(add_sql_unittest_testbase _source)
     "SQLATE_DATABASE_HOST=${SQLATE_DATABASE_HOST};SQLATE_DATABASE_NAME=sqlate_test_${HOSTNAME};SQLATE_DATABASE_USER=${SQLATE_DATABASE_USER};SQLATE_DATABASE_PASSWORD=${SQLATE_DATABASE_PASSWORD}"
   )
   target_link_libraries(${_name} Qt4::QtTest
-      sqlate testcommon)
+      sqlate_schemaupdate testcommon)
 endmacro()
 
 add_sql_unittest(schematest.cpp)
