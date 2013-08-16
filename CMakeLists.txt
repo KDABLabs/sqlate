@@ -45,27 +45,12 @@ endif()
 
 enable_testing()
 
-if(APPLE)
-  set(BIN_INSTALL_DIR ".")
-  # No LIB_INSTALL_DIR on APPLE, we use BundleUtilities instead.
-  # No PLUGIN_INSTALL_DIR on APPLE, we use BundleUtilities instead.
-  # If the install directory is the default then set to a child dir
-  # of the the binary install. Otherwise we assume the user has specified
-  # a CMAKE_INSTALL_PREFIX define
-  # FIXME: there must be a better way of detecting the default vs user set
-  if(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/bin")
-  endif()
-elseif(WIN32)
-  set(BIN_INSTALL_DIR ".")
-  set(LIB_INSTALL_DIR ".")
-  set(PLUGIN_INSTALL_DIR "plugins")
-elseif(NOT ANDROID)
-  set(BIN_INSTALL_DIR "bin")
-  set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
-  set(LIB_INSTALL_DIR "lib${LIB_SUFFIX}")
-  set(PLUGIN_INSTALL_DIR "${LIB_INSTALL_DIR}/plugins")
-endif()
+set(LIB_SUFFIX "" CACHE STRING "Define suffix of library directory name (eg. '64')")
+
+set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
+set(PLUGIN_INSTALL_DIR plugins)
+set(BIN_INSTALL_DIR bin)
+set(INCLUDE_INSTALL_DIR include)
 
 include_directories(${QT_INCLUDES})
 
@@ -111,7 +96,11 @@ endif()
 target_link_libraries(sqlate ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
 
 if(NOT APPLE AND NOT ANDROID)
-  install(TARGETS sqlate RUNTIME DESTINATION ${BIN_INSTALL_DIR} LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+  install(TARGETS sqlate EXPORT sqlateTargets
+    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+  )
 endif()
 
 add_executable(sqlschema2dot sqlschema2dot.cpp)
