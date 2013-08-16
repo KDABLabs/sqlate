@@ -140,7 +140,7 @@ if (NOT ANDROID)
 endif()
 
 
-if(NOT APPLE AND NOT ANDROID)
+if(NOT ANDROID)
   install(TARGETS sqlate sqlate_schemaupdate EXPORT sqlateTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
