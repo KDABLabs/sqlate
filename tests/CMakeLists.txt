@@ -1,6 +1,10 @@
 site_name(HOSTNAME)
-string(REPLACE "-" "_" HOSTNAME ${HOSTNAME})
-string(REPLACE "." "_" HOSTNAME ${HOSTNAME})
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+  string(REPLACE "-" "_" HOSTNAME ${HOSTNAME})
+  string(REPLACE "." "_" HOSTNAME ${HOSTNAME})
+else()
+  string(MAKE_C_IDENTIFIER ${HOSTNAME} HOSTNAME)
+endif()
 
 include_directories(
   ${CMAKE_BINARY_DIR}
