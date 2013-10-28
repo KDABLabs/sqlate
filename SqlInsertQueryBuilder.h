@@ -76,6 +76,7 @@ public:
 
 private:      
     friend class InsertQueryBuilderTest;
+    friend class InsertTest;
     QVector<QPair<QString, QVariant> > m_columns;
     
     QStringList m_columnNames; //holds the column names, used for unit testing

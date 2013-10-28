@@ -75,6 +75,7 @@ protected:
 protected:
     friend class SelectQueryBuilderTest;
     friend class SelectTest;
+    friend class InsertTest;
     QSqlDatabase m_db;
     QString m_table;
     SqlQuery m_query;
