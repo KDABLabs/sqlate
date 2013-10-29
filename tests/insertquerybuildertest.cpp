@@ -41,7 +41,7 @@ private Q_SLOTS:
         QVector<QVariant> values;
 
         qb.setTable( Report );
-        qb.addDefaultValues();
+        qb.setToDefaultValues();
         QTest::newRow( "Default values" ) << qb << "INSERT INTO tblReport DEFAULT VALUES" << columns << values;
 
         qb = SqlInsertQueryBuilder();
