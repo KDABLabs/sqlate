@@ -19,7 +19,8 @@ private Q_SLOTS:
                                             "fk_lutPersonGrades_id UUID NOT NULL REFERENCES lutPersonGrades (id) ON DELETE RESTRICT,\n"
                                             "PersonActive BOOLEAN,\n"
                                             "HireRights BOOLEAN,\n"
-                                            "UserName VARCHAR(255) UNIQUE\n)" );
+                                            "UserName VARCHAR(255) UNIQUE,\n"
+                                            "Hired TIMESTAMP WITH TIMEZONE\n)" );
         QCOMPARE( Sql::createTableStatement( Sql::Person ), s );
     }
 
