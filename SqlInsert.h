@@ -44,6 +44,8 @@
 /**
  * @file SqlInsert.h
  * Insert query expression templates.
+ *
+ * @todo Subquery (INSERT INTO a SELECT * FROM b)
  */
 
 namespace Sql {
@@ -52,13 +54,25 @@ struct ColumnValue
 {
     template <typename ColumnT>
     ColumnValue(const ColumnT&, const typename ColumnT::type& value) :
-        columnName(ColumnT::sqlName()), value(QVariant::fromValue( value ))
+        columnName(ColumnT::sqlName()), value(QVariant::fromValue( value )), isDefault(false)
     {
         Sql::warning<boost::is_same<typename ColumnT::type, QDateTime>, UsageOfClientSideTime>::print();
     }
 
+    template <typename ColumnT>
+    ColumnValue(const ColumnT&) :
+        columnName(ColumnT::sqlName()), isDefault(true)
+    {
+    }
+
+    ColumnValue(const QString& name) :
+        columnName(name), isDefault(true)
+    {
+    }
+
     QString columnName;
     QVariant value;
+    bool isDefault;
 };
 
 // TODO find out if it would be possible to have an operator= instead
@@ -79,7 +93,7 @@ struct InsertExpr
     /**
      * Empty ctor.
      */
-    InsertExpr() {}
+    InsertExpr() : useDefaultValues(false) {}
 
     /**
      * "Copy" ctor.
@@ -107,12 +121,18 @@ struct InsertExpr
      */
     InsertExpr<TableT> columns( const QList<ColumnValue>& cols )
     {
-        values = cols;
+        values += cols;
         return *this;
     }
     InsertExpr<TableT> columns( const ColumnValue& col )
     {
         return columns(QList<ColumnValue>() << col);
+    }
+
+    InsertExpr<TableT> defaultValues()
+    {
+        useDefaultValues = true;
+        return *this;
     }
 
     /**
@@ -123,8 +143,19 @@ struct InsertExpr
     {
         SqlInsertQueryBuilder qb;
         qb.setTable<TableT>();
-        foreach (const ColumnValue& col, values) {
-            qb.addColumnValue(col.columnName, col.value);
+        if (values.isEmpty() || useDefaultValues) {
+            foreach (const ColumnValue& column, values) {
+                qb.addColumn(column.columnName);
+            }
+            qb.setToDefaultValues();
+        } else {
+            foreach (const ColumnValue& col, values) {
+                if (col.isDefault) {
+                    qb.addColumn(col.columnName);
+                } else {
+                    qb.addColumnValue(col.columnName, col.value);
+                }
+            }
         }
         return qb;
     }
@@ -148,6 +179,7 @@ struct InsertExpr
     }
 
     QList<ColumnValue> values;
+    bool useDefaultValues;
 };
 
 /**
@@ -165,6 +197,31 @@ QList<ColumnValue> operator&(const ColumnValue& c1, const ColumnValue& c2)
 QList<ColumnValue> operator&(const QList<ColumnValue>& c1, const ColumnValue& c2)
 {
     return QList<ColumnValue>() << c1 << c2;
+}
+
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, QList<ColumnValue> >::type
+operator&(const ColumnT1& c1, const ColumnT2& c2)
+{
+    return operator&(ColumnValue(c1), ColumnValue(c2));
+}
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, QList<ColumnValue> >::type
+operator&(const ColumnT& c1, const ColumnValue& c2)
+{
+    return operator&(ColumnValue(c1), c2);
+}
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, QList<ColumnValue> >::type
+operator&(const ColumnValue& c1, const ColumnT& c2)
+{
+    return operator&(c1, ColumnValue(c2));
+}
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, QList<ColumnValue> >::type
+operator&(const QList<ColumnValue>& c1, const ColumnT& c2)
+{
+    return operator&(c1, ColumnValue(c2));
 }
 
 }

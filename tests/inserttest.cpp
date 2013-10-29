@@ -41,6 +41,22 @@ private Q_SLOTS:
                              Person.PersonSurname >> QLatin1String( "Prefect" ) ).queryBuilder()
                 << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (:0,:1)"
                 << (QVector<QVariant>() << QLatin1String( "Ford" ) << QLatin1String( "Prefect" ));
+
+        QTest::newRow( "two col, default values" )
+                << insert()
+                   .into( Person )
+                   .columns( Person.PersonForename & Person.PersonSurname )
+                   .defaultValues().queryBuilder()
+                << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (DEFAULT,DEFAULT)"
+                << (QVector<QVariant>());
+
+        QTest::newRow( "two col, one default, one not" )
+                << insert()
+                   .into( Person )
+                   .columns( Person.PersonForename >> QLatin1String( "Ford" ) & Person.PersonSurname )
+                   .queryBuilder()
+                << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (:0,DEFAULT)"
+                << (QVector<QVariant>() << QLatin1String( "Ford" ));
     }
 
     void testInsert()
@@ -51,7 +67,7 @@ private Q_SLOTS:
 
         qb.query(); // trigger query assembly
         QCOMPARE( qb.m_queryString, sql );
-        QCOMPARE( qb.m_values, bindVals );
+        QCOMPARE( qb.m_values.values().toVector(), bindVals );
     }
 };
 
