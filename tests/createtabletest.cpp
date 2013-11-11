@@ -20,7 +20,7 @@ private Q_SLOTS:
                                             "PersonActive BOOLEAN,\n"
                                             "HireRights BOOLEAN,\n"
                                             "UserName VARCHAR(255) UNIQUE,\n"
-                                            "Hired TIMESTAMP WITH TIMEZONE\n)" );
+                                            "Hired TIMESTAMP WITH TIME ZONE\n)" );
         QCOMPARE( Sql::createTableStatement( Sql::Person ), s );
     }
 
