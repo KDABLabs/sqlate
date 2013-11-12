@@ -295,6 +295,30 @@ operator==( const ColumnT1& , const placeholder &p )
 }
 
 template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::NotEquals, typename ColumnT::type> >::type
+operator!=( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::NotEquals, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::NotEquals, ColumnT2> >::type
+operator!=( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::NotEquals, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::NotEquals> >::type
+operator!=( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::NotEquals> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
 typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::Less, typename ColumnT::type> >::type
 operator<( const ColumnT &, const typename ColumnT::type& value )
 {

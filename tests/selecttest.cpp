@@ -34,6 +34,11 @@ private Q_SLOTS:
             << "SELECT tblPerson.id FROM tblPerson WHERE tblPerson.HireRights = :0"
             << (QVector<QVariant>() << true);
 
+        QTest::newRow( "single condition, not equal" )
+            << select( Person.id ).from( Person ).where( Person.HireRights != true ).queryBuilder()
+            << "SELECT tblPerson.id FROM tblPerson WHERE tblPerson.HireRights <> :0"
+            << (QVector<QVariant>() << true);
+
         QTest::newRow( "single condition, less than" )
                 << select( Person.id ).from( Person ).where( Person.Hired < QDateTime( QDate( 2013, 10, 28 ) )).queryBuilder()
                 << "SELECT tblPerson.id FROM tblPerson WHERE tblPerson.Hired < :0"
