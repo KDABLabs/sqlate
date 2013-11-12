@@ -61,7 +61,8 @@ TABLE( Person, TEST_EXPORT ) {
     COLUMN( HireRights, bool, Null );
     COLUMN( PersonActive, bool, Null );
     COLUMN( UserName, QString, Unique, 255 );
-    typedef boost::mpl::vector<idType, fk_lutPrefix_idType, PersonForenameType, PersonSurnameType, PersonSuffixType, PersonGradeType, PersonActiveType, HireRightsType, UserNameType> columns;
+    COLUMN( Hired, QDateTime, Null );
+    typedef boost::mpl::vector<idType, fk_lutPrefix_idType, PersonForenameType, PersonSurnameType, PersonSuffixType, PersonGradeType, PersonActiveType, HireRightsType, UserNameType, HiredType> columns;
 };
 
 
