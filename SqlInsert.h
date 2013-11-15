@@ -23,23 +23,10 @@
 #ifndef SQL_INSERT_H
 #define SQL_INSERT_H
 
-#include "SqlInternals_p.h"
-#include "SqlSchema_p.h"
-#include "SqlCondition.h"
 #include "SqlInsertQueryBuilder.h"
-#include "SqlGlobal.h"
 
 #include <boost/mpl/and.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/for_each.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/size.hpp>
-#include <boost/preprocessor/repetition.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <boost/static_assert.hpp>
 
 /**
  * @file SqlInsert.h
