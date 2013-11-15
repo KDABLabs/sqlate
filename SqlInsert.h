@@ -165,7 +165,7 @@ struct InsertExpr
         return queryBuilder();
     }
 
-    QList<ColumnValue> values;
+    QVector<ColumnValue> values;
     bool useDefaultValues;
 };
 
