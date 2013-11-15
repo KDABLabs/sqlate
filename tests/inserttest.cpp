@@ -57,6 +57,14 @@ private Q_SLOTS:
                    .queryBuilder()
                 << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (:0,DEFAULT)"
                 << (QVector<QVariant>() << QLatin1String( "Ford" ));
+
+        QTest::newRow( "two col, bool and datetime" )
+                << insert()
+                   .into( Person )
+                   .columns( Person.HireRights << false & Person.Hired << QDateTime(QDate(2013, 1, 1)) )
+                   .queryBuilder()
+                << "INSERT INTO tblPerson (HireRights,Hired) VALUES (:0,:1)"
+                << (QVector<QVariant>() << false << QDateTime(QDate(2013, 1, 1)));
     }
 
     void testInsert()

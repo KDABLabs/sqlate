@@ -46,7 +46,7 @@ struct ColumnValue
         Sql::warning<boost::is_same<typename ColumnT::type, QDateTime>, UsageOfClientSideTime>::print();
     }
 
-    template <typename ColumnT>
+    template <typename ColumnT, class = typename boost::enable_if<typename ColumnT::is_column>::type>
     ColumnValue(const ColumnT&) :
         columnName(ColumnT::sqlName()), isDefault(true)
     {
@@ -60,6 +60,9 @@ struct ColumnValue
     QString columnName;
     QVariant value;
     bool isDefault;
+
+    /// @internal needed for InsertExpr's vector
+    ColumnValue() : isDefault(true) {}
 };
 
 // TODO find out if it would be possible to have an operator= instead
@@ -108,7 +111,7 @@ struct InsertExpr
      */
     InsertExpr<TableT> columns( const QList<ColumnValue>& cols )
     {
-        values += cols;
+        values += cols.toVector();
         return *this;
     }
     InsertExpr<TableT> columns( const ColumnValue& col )
