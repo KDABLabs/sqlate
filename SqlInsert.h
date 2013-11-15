@@ -64,7 +64,7 @@ struct ColumnValue
 
 // TODO find out if it would be possible to have an operator= instead
 template <typename ColumnT>
-ColumnValue operator>>(const ColumnT& col, const typename ColumnT::type& value)
+ColumnValue operator<<(const ColumnT& col, const typename ColumnT::type& value)
 {
     return ColumnValue(col, value);
 }

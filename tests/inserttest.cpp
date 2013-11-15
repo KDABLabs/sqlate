@@ -30,15 +30,15 @@ private Q_SLOTS:
         QTest::newRow( "single col, one value" )
                 << insert()
                    .into( Person )
-                   .columns( Person.PersonSurname >> QLatin1String( "Ford" ) ).queryBuilder()
+                   .columns( Person.PersonSurname << QLatin1String( "Ford" ) ).queryBuilder()
                 << "INSERT INTO tblPerson (PersonSurname) VALUES (:0)"
                 << (QVector<QVariant>() << QLatin1String( "Ford" ));
 
         QTest::newRow( "two col, two values" )
                 << insert()
                    .into( Person )
-                   .columns( Person.PersonForename >> QLatin1String( "Ford" ) &
-                             Person.PersonSurname >> QLatin1String( "Prefect" ) ).queryBuilder()
+                   .columns( Person.PersonForename << QLatin1String( "Ford" ) &
+                             Person.PersonSurname << QLatin1String( "Prefect" ) ).queryBuilder()
                 << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (:0,:1)"
                 << (QVector<QVariant>() << QLatin1String( "Ford" ) << QLatin1String( "Prefect" ));
 
@@ -53,7 +53,7 @@ private Q_SLOTS:
         QTest::newRow( "two col, one default, one not" )
                 << insert()
                    .into( Person )
-                   .columns( Person.PersonForename >> QLatin1String( "Ford" ) & Person.PersonSurname )
+                   .columns( Person.PersonForename << QLatin1String( "Ford" ) & Person.PersonSurname )
                    .queryBuilder()
                 << "INSERT INTO tblPerson (PersonForename,PersonSurname) VALUES (:0,DEFAULT)"
                 << (QVector<QVariant>() << QLatin1String( "Ford" ));
