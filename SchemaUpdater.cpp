@@ -20,7 +20,7 @@
 */
 #include "SchemaUpdater.h"
 
-#include "sql.h"
+#include "Sql.h"
 #include "SqlQuery.h"
 #include "SqlUtils.h"
 
