@@ -28,6 +28,7 @@
 
 class SQLATE_EXPORT KDThreadRunnerBase : public QThread
 {
+    Q_OBJECT
 public:
     ~KDThreadRunnerBase();
 

@@ -24,9 +24,8 @@
 #include "SqlMonitor.h"
 #include "SqlQueryCache.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QMap>
-#include <QMessageBox>
 #include <QDebug>
 #include <QSqlDriver>
 #include <QThread>

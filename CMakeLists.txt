@@ -1,6 +1,6 @@
 project(sqlatelib)
 
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.2.0)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -12,12 +12,10 @@ if (SQL_ENABLE_NETWORK_WATCHER)
   add_definitions(-DSQL_ENABLE_NETWORK_WATCHER)
 endif ()
 
-if (ANDROID)
-  find_host_package(Qt4 REQUIRED)
-  include(Android)
-else (ANDROID)
-  find_package(Qt4 REQUIRED)
-endif()
+find_package(Qt5Core 5.4 REQUIRED)
+find_package(Qt5Sql 5.4 REQUIRED)
+find_package(Qt5Widgets 5.4 REQUIRED)
+find_package(Qt5Test 5.4 REQUIRED)
 
 find_package(Boost 1.40 REQUIRED)
 
@@ -39,10 +37,8 @@ add_definitions( -DQT_NO_CAST_FROM_ASCII )
 add_definitions( -DQT_NO_CAST_TO_ASCII )
 add_definitions( -DQT_NO_CAST_FROM_BYTEARRAY )
 add_definitions( -DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
-endif()
+add_definitions( -fPIC )
+add_definitions(-std=c++14)
 
 enable_testing()
 
@@ -53,7 +49,7 @@ set(PLUGIN_INSTALL_DIR plugins)
 set(BIN_INSTALL_DIR bin)
 set(INCLUDE_INSTALL_DIR include)
 
-include_directories(${QT_INCLUDES})
+include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_INCLUDE_DIRS} ${Qt5Test_INCLUDE_DIRS})
 
 set(SQLATE_SRCS
   kdthreadrunner.cpp
@@ -107,7 +103,7 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/sqlate_export.h
   DESTINATION ${INCLUDE_INSTALL_DIR})
 
-qt4_add_resources(sql_resources SqlResources.qrc )
+qt5_add_resources(sql_resources SqlResources.qrc )
 
 include(GenerateExportHeader)
 
@@ -116,8 +112,8 @@ generate_export_header(sqlate)
 set_property(TARGET sqlate PROPERTY EXPORT_NAME Sqlate)
 target_link_libraries(sqlate
   LINK_PUBLIC
-    Qt4::QtSql
-    Qt4::QtCore
+    ${Qt5Sql_LIBRARIES}
+    ${Qt5Core_LIBRARIES}
 )
 
 add_library(sqlate_schemaupdate SHARED SchemaUpdater.cpp)
@@ -126,7 +122,7 @@ set_property(TARGET sqlate_schemaupdate PROPERTY EXPORT_NAME SqlateSchemaUpdate)
 target_link_libraries(sqlate_schemaupdate
   LINK_PUBLIC
     sqlate
-    Qt4::QtGui
+    ${Qt5Gui_LIBRARIES}
 )
 
 set(SQLATE_LIBRARY_VERSION 0.1.0)

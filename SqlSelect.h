@@ -703,16 +703,6 @@ operator==(T lhs, int rhs )
 	return rhs == (int)lhs;
 }
 
-inline bool operator==(QMapData::Node* lhs, QMap<QString, QString>::iterator rhs )
-{
-  return lhs == (QMapData::Node*)rhs;
-}
-
-inline bool operator==(QMapData::Node* lhs, QMap<QUuid, QUuid>::iterator rhs )
-{
-  return lhs == (QMapData::Node*)rhs;
-}
-
 inline bool operator==(QStringList lhs, QStringList rhs )
 {
   return lhs.operator==(rhs);

@@ -33,12 +33,12 @@
 #include <QDateTime>
 #include <QTime>
 #include <QStringBuilder>
+#include <QString>
 #include <QStringList>
 #include <QUuid>
 #include <QVariant>
 #include <QSqlDatabase>
 
-#include <boost/bind.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -383,10 +383,12 @@ void setVersion( const Table& table, const QSqlDatabase &db , int version)
 template <typename Tables>
 void createMissingTables( const QSqlDatabase &db = QSqlDatabase::database() )
 {
+    auto toLower = [](QString &s) {return std::move(s).toLower();};
+
     QStringList existingTables = db.tables();
-    std::transform(existingTables.begin(), existingTables.end(), existingTables.begin(), boost::bind(&QString::toLower, _1));
+    std::transform(existingTables.begin(), existingTables.end(), existingTables.begin(), toLower);
     QStringList newTables = Sql::tableNames<Tables>();
-    std::transform(newTables.begin(), newTables.end(), newTables.begin(), boost::bind(&QString::toLower, _1));
+    std::transform(newTables.begin(), newTables.end(), newTables.begin(), toLower);
     const QStringList newTableStmts = Sql::createTableStatements<Tables>();
     Q_ASSERT( newTables.size() == newTableStmts.size() );
     for ( QStringList::const_iterator it = newTables.constBegin(), it2 = newTableStmts.constBegin(); it != newTables.constEnd(); ++it, ++it2 ) {
