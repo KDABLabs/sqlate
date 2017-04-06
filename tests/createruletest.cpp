@@ -20,10 +20,10 @@ private Q_SLOTS:
         QCOMPARE( rules[1], QLatin1String("CREATE OR REPLACE RULE tblVersionNotificationUpdateRule AS ON UPDATE TO tblVersion DO ALSO NOTIFY tblVersionChanged") );
         QCOMPARE( rules[2], QLatin1String("CREATE OR REPLACE RULE tblVersionNotificationDeleteRule AS ON DELETE TO tblVersion DO ALSO NOTIFY tblVersionChanged") );
 
-        //_1b57b54 is the encoded version of the "tblWorkplace.id" column
-       // SQLDEBUG << rules;
+        //_707e7ade is the encoded version of the "tblWorkplace.id" column
+//        SQLDEBUG << rules;
         QRegExp rx(QLatin1String("^CREATE OR REPLACE RULE \"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\" "
-                                 "AS ON UPDATE TO tblWorkplace DO ALSO SELECT pg_notify\\(CAST \\(OLD\\.id AS text\\) \\|\\| '_1b57b54',''\\)$"), Qt::CaseSensitive, QRegExp::RegExp2);
+                                 "AS ON UPDATE TO tblWorkplace DO ALSO SELECT pg_notify\\(CAST \\(OLD\\.id AS text\\) \\|\\| '_707e7ade',''\\)$"), Qt::CaseSensitive, QRegExp::RegExp2);
 
         SQLDEBUG << rules.indexOf(rx);
         QVERIFY(rules.indexOf(rx) != -1);
