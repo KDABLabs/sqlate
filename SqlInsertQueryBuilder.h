@@ -46,6 +46,9 @@ public:
     /// INSERT INTO table ( @p columnName , ... ) VALUES( @p value )
     void addColumnValue( const QString &columnName, const QVariant &value );
 
+    /// INSERT INTO table ( @p columnName , ... ) VALUES( DEFAULT )
+    void addColumn( const QString& columnName );
+
     template <typename Column>
     void addColumnValue( const Column &, const typename Column::type &value )
     {
@@ -65,21 +68,24 @@ public:
         addColumnValue( Column::sqlName(), QVariant::fromValue(now) );
     }
 
-    /// INSERT INTO table VALUES ( @p values )...
-    void addAllValues( const QVector<QVariant> &values );
+    template <typename Column>
+    void addColumn( const Column & )
+    {
+        addColumn( Column::sqlName() );
+    }
 
     /// INSERT INTO ... DEFAULT VALUES
-    void addDefaultValues();
+    void setToDefaultValues();
 
     /// Returns the created query object, when called first, the query object is assembled and prepared
     SqlQuery& query();
 
 private:      
     friend class InsertQueryBuilderTest;
-    QVector<QPair<QString, QVariant> > m_columns;
+    friend class InsertTest;
     
     QStringList m_columnNames; //holds the column names, used for unit testing
-    QVector<QVariant> m_values; //holds the inserted values, used for unit testing    
+    QMap<QString, QVariant> m_values; //holds the inserted values, used for unit testing
 };
 
 #endif

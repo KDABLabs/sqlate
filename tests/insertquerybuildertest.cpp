@@ -41,7 +41,7 @@ private Q_SLOTS:
         QVector<QVariant> values;
 
         qb.setTable( Report );
-        qb.addDefaultValues();
+        qb.setToDefaultValues();
         QTest::newRow( "Default values" ) << qb << "INSERT INTO tblReport DEFAULT VALUES" << columns << values;
 
         qb = SqlInsertQueryBuilder();
@@ -106,7 +106,6 @@ private Q_SLOTS:
         qb.query(); // trigger query assembly
         QCOMPARE( qb.m_queryString, sql );
         QCOMPARE( qb.m_columnNames, columns );
-        qDebug() << qb.m_values << values;
         // variant comparission for custom types (here, mostly QUuid) doesn't work, so we have to do this manually...
         QCOMPARE( qb.m_values.size(), values.size() );
         QVERIFY( std::equal( qb.m_values.begin(), qb.m_values.end(), values.begin(), deepVariantCompare ) );

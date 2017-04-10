@@ -106,6 +106,7 @@ install(FILES
   SqlSchema.h
   SqlSchema_p.h
   SqlSelect.h
+  SqlInsert.h
   SqlSelectQueryBuilder.h
   SqlTransaction.h
   SqlUpdateQueryBuilder.h
