@@ -52,10 +52,9 @@ support is implemented)
 
 ## Prerequisites
 
-* CMake 3.2.0 or above
-* Qt 5.4 or above
+* CMake 2.8.7 or above
+* Qt 4
 * Boost 1.40 or newer
-* Compiler supporting C++11/14
 * PostgreSQL (runtime dependency for unit tests)
 
 ## Building from source
@@ -72,9 +71,8 @@ sudo make install
 ```
 
 ### OSX, Windows and Android
-* the Qt 5 version was not tested on these systems as this moment. The Qt4 version works on these platforms, on Windows requiring
-MSVC 2010 or newer. For all systems the PostgreSQL Qt driver must be built and installed and Boost needs to be available.
-The Qt4 version can be found by checking out the qt4 branch.
+* The Qt4 version works on these platforms, on Windows requiring MSVC 2010 (or possibly newer should also work). For all systems the
+PostgreSQL Qt driver must be built and installed and Boost needs to be available
 
 ### Unit tests
 
@@ -83,7 +81,7 @@ To run unit tests use
 ctest
 ```
 
-in the build directory. For details about the unit test prerequisites, read the README.txt file in the tests directory.
+in the build directory. For details about the unit test prerequisites, read the README.tests file in the tests directory.
 
 ## License
 * LGPL v2.1
