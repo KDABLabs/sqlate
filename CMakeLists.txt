@@ -62,6 +62,11 @@ add_custom_target(headers SOURCES
   SqlSelect.h
 )
 
+add_custom_target(others SOURCES
+  README.md
+  tests/README.TXT
+)
+
 set(SQLATE_SRCS
   kdthreadrunner.cpp
   PostgresSchema.cpp
