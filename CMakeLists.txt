@@ -51,32 +51,43 @@ set(INCLUDE_INSTALL_DIR include)
 
 include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_INCLUDE_DIRS} ${Qt5Test_INCLUDE_DIRS})
 
+add_custom_target(headers SOURCES
+  Sql.h
+  SqlCreateRule.h
+  SqlExceptions.h
+  SqlGlobal.h
+  SqlGrantPermission.h
+  SqlGraphviz.h
+  SqlSelect.h
+)
+
 set(SQLATE_SRCS
   kdthreadrunner.cpp
+  PostgresSchema.cpp
   SqlCondition.cpp
+  SqlConditionalQueryBuilderBase.cpp
+  SqlCreateTable.cpp
+  SqlDeleteQueryBuilder.cpp
+  SqlInsertQueryBuilder.cpp
+  SqlMonitor.cpp
   SqlQuery.cpp
   SqlQueryBuilderBase.cpp
-  SqlConditionalQueryBuilderBase.cpp
-  SqlDeleteQueryBuilder.cpp
-  SqlSelectQueryBuilder.cpp
-  SqlInsertQueryBuilder.cpp
-  SqlUpdateQueryBuilder.cpp
-  SqlCreateTable.cpp
-  SqlSchema.cpp
-  SqlTransaction.cpp
-  SqlMonitor.cpp
+  SqlQueryCache.cpp
   SqlQueryManager.cpp
   SqlQueryWatcher.cpp
+  SqlSchema.cpp
+  SqlSelectQueryBuilder.cpp
+  SqlTransaction.cpp
+  SqlUpdateQueryBuilder.cpp
   SqlUtils.cpp
-  PostgresSchema.cpp
-  SqlQueryCache.cpp
 )
 
 install(FILES
   PostgresSchema.h
   SchemaUpdater.h
-  SqlConditionalQueryBuilderBase.h
+  Sql.h
   SqlCondition.h
+  SqlConditionalQueryBuilderBase.h
   SqlCreateRule.h
   SqlCreateTable.h
   SqlDeleteQueryBuilder.h
@@ -84,7 +95,6 @@ install(FILES
   SqlGlobal.h
   SqlGrantPermission.h
   SqlGraphviz.h
-  Sql.h
   SqlInsertQueryBuilder.h
   SqlInternals_p.h
   SqlMonitor.h
