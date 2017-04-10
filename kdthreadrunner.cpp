@@ -72,5 +72,3 @@ QMutex* KDThreadRunnerBase::internalStartThreadMutex()
 {
     return & d->m_startThreadMutex;
 }
-
-#include "kdthreadrunner.moc"

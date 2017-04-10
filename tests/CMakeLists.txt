@@ -1,10 +1,5 @@
 site_name(HOSTNAME)
-if (CMAKE_VERSION VERSION_LESS 2.8.12)
-  string(REPLACE "-" "_" HOSTNAME ${HOSTNAME})
-  string(REPLACE "." "_" HOSTNAME ${HOSTNAME})
-else()
-  string(MAKE_C_IDENTIFIER ${HOSTNAME} HOSTNAME)
-endif()
+string(MAKE_C_IDENTIFIER ${HOSTNAME} HOSTNAME)
 
 include_directories(
   ${CMAKE_BINARY_DIR}
@@ -34,7 +29,7 @@ macro(add_sql_unittest _source)
 
   add_executable(${_name} ${_source})
   add_test(NAME sql-${_name} COMMAND ${_name})
-  target_link_libraries(${_name} sqlate testcommon Qt4::QtTest)
+  target_link_libraries(${_name} sqlate testcommon Qt5::Test )
 endmacro()
 
 #macro for test needing db access (they derive from TestBase)
@@ -47,7 +42,7 @@ macro(add_sql_unittest_testbase _source)
   set_tests_properties(sql-${_name} PROPERTIES ENVIRONMENT
     "SQLATE_DATABASE_HOST=${SQLATE_DATABASE_HOST};SQLATE_DATABASE_NAME=sqlate_test_${HOSTNAME};SQLATE_DATABASE_USER=${SQLATE_DATABASE_USER};SQLATE_DATABASE_PASSWORD=${SQLATE_DATABASE_PASSWORD}"
   )
-  target_link_libraries(${_name} Qt4::QtTest
+  target_link_libraries(${_name} Qt5::Test Qt5::Widgets
       sqlate_schemaupdate testcommon)
 endmacro()
 
