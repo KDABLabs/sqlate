@@ -102,7 +102,7 @@ struct InsertExpr
     template <typename T>
     InsertExpr<T> into( const T& )
     {
-        BOOST_MPL_ASSERT(( boost::is_same<TableT, detail::missing> )); // only one from allowed
+        BOOST_MPL_ASSERT(( boost::is_same<TableT, detail::missing> )); // only one into allowed
         return InsertExpr<T>();
     }
 
