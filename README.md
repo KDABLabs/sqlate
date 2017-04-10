@@ -45,7 +45,8 @@ QSqlQuery query = select(Presenters.name).from(Presenters).where(Presenters.age 
 * support complex join statements
 * transaction and monitor support
 * support for schema updates
-* extensible to support multiple database type and hides the SQL dialect difference from the end user
+* extensible to support multiple database type and hides the SQL dialect difference from the end user (currently only PostgreSQL
+support is implemented)
 * exception based error handling
 
 
@@ -70,6 +71,11 @@ make
 sudo make install
 ```
 
+### OSX, Windows and Android
+* the Qt 5 version was not tested on these systems as this moment. The Qt4 version works on these platforms, on Windows requiring
+MSVC 2010 or newer. For all systems the PostgreSQL Qt driver must be built and installed and Boost needs to be available.
+The Qt4 version can be found by checking out the qt4 branch.
+
 ### Unit tests
 
 To run unit tests use
@@ -77,7 +83,7 @@ To run unit tests use
 ctest
 ```
 
-in the build direcotry. For details about the unit test prerequisites, read the README.txt file in the tests directory.
+in the build directory. For details about the unit test prerequisites, read the README.txt file in the tests directory.
 
 ## License
 * LGPL v2.1
