@@ -29,9 +29,12 @@
 #include <QVariant>
 #include <QVector>
 
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/not.hpp>
+#include <boost/mpl/vector.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/utility/enable_if.hpp>
 
 /** SQL NULL type, to allow using NULL in template code, rather than falling back to QVariant(). */
 struct SqlNullType {};
@@ -169,6 +172,365 @@ private:
     LogicOperator m_logicOp;
     bool m_isCaseSensitive;
 };
+
+namespace Sql {
+template <typename SubConditionList, SqlCondition::LogicOperator> struct ConditionExpr;
+template <typename Lhs, SqlCondition::CompareOperator, typename Rhs> struct ConditionColumnLeaf;
+template <typename Lhs, SqlCondition::CompareOperator, typename Rhs> struct ConditionValueLeaf;
+template <typename Lhs, SqlCondition::CompareOperator, typename Rhs> struct ConditionPlaceholderLeaf;
+
+namespace detail {
+
+/**
+ * Add a ConditionLeaf to an existing SqlCondition for SQL code generation.
+ * @internal
+ */
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+void append_condition( SqlCondition &cond, const ConditionColumnLeaf<Lhs, Comp, Rhs> & )
+{
+    cond.addColumnCondition( Lhs(), Comp, Rhs() );
+}
+
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+void append_condition( SqlCondition &cond, const ConditionValueLeaf<Lhs, Comp, Rhs> &leaf )
+{
+    cond.addValueCondition( Lhs::name(), Comp, leaf.value );
+}
+
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+void append_condition( SqlCondition &cond, const ConditionPlaceholderLeaf<Lhs, Comp, Rhs> &leaf )
+{
+    cond.addPlaceholderCondition( Lhs::name(), Comp, leaf.placeholder );
+}
+
+/**
+ * Metafunction to identify condition expressions.
+ * @internal
+ */
+template <typename T>
+struct is_condition_expr : boost::mpl::false_ {};
+
+template <typename SubConditionList, SqlCondition::LogicOperator Op>
+struct is_condition_expr<ConditionExpr<SubConditionList, Op> > : boost::mpl::true_ {};
+
+/**
+ * Metafunction to wrap a single condition leaf into an condition expression.
+ * @tparam T a condition leaf or a condition expression
+ * @internal
+ */
+template <typename T>
+struct wrap_condition_leaf
+{
+    typedef typename boost::mpl::if_<is_condition_expr<T>, T, ConditionExpr<boost::mpl::vector<T>, SqlCondition::And> >::type type;
+};
+
+template <typename T>
+typename boost::enable_if<is_condition_expr<T>, void>::type
+assign_condition( SqlCondition &cond, const T &expr ) { cond = expr.condition; }
+
+template <typename T>
+typename boost::disable_if<is_condition_expr<T>, void>::type
+assign_condition( SqlCondition &cond, const T &leaf ) { append_condition( cond, leaf ); }
+
+}
+
+/**
+ * Represents a single node in a conditional expression
+ * @internal
+ * @tparam Derived CRTP
+ * @tparam Lhs Left hand side statement
+ * @tparam Comp Comparator type
+ * @tparam Rhs Right hand side statement
+ */
+template <template <typename, SqlCondition::CompareOperator, typename> class Derived, typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+struct ConditionLeaf
+{
+    ConditionLeaf() {}
+
+    /**
+     * Logic operators for combining two leafs.
+     */
+    template <typename ConditionLeaf2>
+    ConditionExpr<boost::mpl::vector<Derived<Lhs, Comp, Rhs>, ConditionLeaf2>, SqlCondition::And> operator&&( const ConditionLeaf2& l2 ) const
+    {
+        ConditionExpr<boost::mpl::vector<Derived<Lhs, Comp, Rhs>, ConditionLeaf2>, SqlCondition::And> newCond;
+        newCond.condition.setLogicOperator( SqlCondition::And );
+        detail::append_condition( newCond.condition, *static_cast<const Derived<Lhs, Comp, Rhs>*>( this ) );
+        detail::append_condition( newCond.condition, l2 );
+        return newCond;
+    }
+
+    template <typename ConditionLeaf2>
+    ConditionExpr<boost::mpl::vector<Derived<Lhs, Comp, Rhs>, ConditionLeaf2>, SqlCondition::Or> operator||( const ConditionLeaf2& l2 ) const
+    {
+        ConditionExpr<boost::mpl::vector<Derived<Lhs, Comp, Rhs>, ConditionLeaf2>, SqlCondition::Or> newCond;
+        newCond.condition.setLogicOperator( SqlCondition::Or );
+        detail::append_condition( newCond.condition, *static_cast<const Derived<Lhs, Comp, Rhs>*>( this ) );
+        detail::append_condition( newCond.condition, l2 );
+        return newCond;
+    }
+};
+
+/**
+ * Represents a single column condition.
+ * @internal
+ */
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+struct ConditionColumnLeaf : ConditionLeaf<ConditionColumnLeaf, Lhs, Comp, Rhs> {};
+
+/**
+ * Represents a single value condition.
+ * @internal
+ */
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs>
+struct ConditionValueLeaf : ConditionLeaf<ConditionValueLeaf, Lhs, Comp, Rhs>
+{
+    QVariant value;
+};
+
+/**
+ * Represents a single placeholder condition.
+ * @internal
+ */
+template <typename Lhs, SqlCondition::CompareOperator Comp, typename Rhs = detail::missing>
+struct ConditionPlaceholderLeaf : ConditionLeaf<ConditionPlaceholderLeaf, Lhs, Comp, Rhs>
+{
+    QString placeholder;
+};
+
+/**
+ * Create a placeholder in conditional expressions for later binding.
+ * @param name The placeholder name.
+ */
+struct placeholder {
+    explicit placeholder( const QString &name ) : m_name( name ) {}
+    explicit placeholder( const char* name ) : m_name( QString::fromLatin1( name ) ) {}
+
+    QString m_name;
+};
+
+/**
+ * Represents a complex conditional expression
+ * @internal
+ * @tparam SubConditionList A MPL sequence of conditions
+ * @tparam LogicOp The logical operator used to combine those conditions
+ */
+template <typename SubConditionList, SqlCondition::LogicOperator LogicOp>
+struct ConditionExpr
+{
+    /**
+     * Logic operators to add another leaf.
+     */
+    template <typename Leaf2>
+    typename boost::enable_if_c<(LogicOp == SqlCondition::And), ConditionExpr<typename boost::mpl::push_back<SubConditionList, Leaf2>::type, LogicOp> >::type
+    operator&&( const Leaf2 &l2 )
+    {
+        ConditionExpr<typename boost::mpl::push_back<SubConditionList, Leaf2>::type, LogicOp> newCond;
+        newCond.condition = condition;
+        detail::append_condition( newCond.condition, l2 );
+        return newCond;
+    }
+
+    template <typename Leaf2>
+    typename boost::enable_if_c<(LogicOp == SqlCondition::Or), ConditionExpr<typename boost::mpl::push_back<SubConditionList, Leaf2>::type, LogicOp> >::type
+    operator||( const Leaf2 &l2 )
+    {
+        ConditionExpr<typename boost::mpl::push_back<SubConditionList, Leaf2>::type, LogicOp> newCond;
+        newCond.condition = condition;
+        detail::append_condition( newCond.condition, l2 );
+        return newCond;
+    }
+
+    SqlCondition condition;
+};
+
+
+/*
+ * Operators for creating ConditionLeaf instances based on at least one column object.
+ */
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::Equals, typename ColumnT::type> >::type
+operator==( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::Equals, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::Equals, ColumnT2> >::type
+operator==( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::Equals, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Equals> >::type
+operator==( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Equals> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::NotEquals, typename ColumnT::type> >::type
+operator!=( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::NotEquals, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::NotEquals, ColumnT2> >::type
+operator!=( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::NotEquals, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::NotEquals> >::type
+operator!=( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::NotEquals> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::Less, typename ColumnT::type> >::type
+operator<( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::Less, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::Less, ColumnT2> >::type
+operator<( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::Less, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Less> >::type
+operator<( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Less> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::LessOrEqual, typename ColumnT::type> >::type
+operator<=( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::LessOrEqual, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::LessOrEqual, ColumnT2> >::type
+operator<=( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::LessOrEqual, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::LessOrEqual> >::type
+operator<=( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::LessOrEqual> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::Greater, typename ColumnT::type> >::type
+operator>( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::Greater, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::Greater, ColumnT2> >::type
+operator>( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::Greater, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Greater> >::type
+operator>( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::Greater> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+template <typename ColumnT>
+typename boost::enable_if<typename ColumnT::is_column, ConditionValueLeaf<ColumnT, SqlCondition::GreaterOrEqual, typename ColumnT::type> >::type
+operator>=( const ColumnT &, const typename ColumnT::type& value )
+{
+    ConditionValueLeaf<ColumnT, SqlCondition::GreaterOrEqual, typename ColumnT::type> newCond;
+    newCond.value = QVariant::fromValue( value );
+    return newCond;
+}
+template <typename ColumnT1, typename ColumnT2>
+typename boost::enable_if<boost::mpl::and_<typename ColumnT1::is_column, typename ColumnT2::is_column>, ConditionColumnLeaf<ColumnT1, SqlCondition::GreaterOrEqual, ColumnT2> >::type
+operator>=( const ColumnT1&, const ColumnT2& )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT1::type, typename ColumnT2::type> )); // only compare columns of the same type
+    return ConditionColumnLeaf<ColumnT1, SqlCondition::GreaterOrEqual, ColumnT2>();
+}
+template <typename ColumnT1>
+typename boost::enable_if<typename ColumnT1::is_column, ConditionPlaceholderLeaf<ColumnT1, SqlCondition::GreaterOrEqual> >::type
+operator>=( const ColumnT1& , const placeholder &p )
+{
+    ConditionPlaceholderLeaf<ColumnT1, SqlCondition::GreaterOrEqual> c;
+    c.placeholder = p.m_name;
+    return c;
+}
+
+/**
+ * Create column IS NOT NULL condition.
+ * @tparam ColumnT The column type.
+ */
+template <typename ColumnT>
+ConditionValueLeaf<ColumnT, SqlCondition::IsNot, QVariant>
+isNotNull( const ColumnT & )
+{
+    return ConditionValueLeaf<ColumnT, SqlCondition::IsNot, QVariant>();
+}
+
+/**
+ * Create column IS NULL condition.
+ * @tparam ColumnT The column type.
+ */
+template <typename ColumnT>
+ConditionValueLeaf<ColumnT, SqlCondition::Is, QVariant>
+isNull( const ColumnT & )
+{
+    BOOST_MPL_ASSERT(( boost::mpl::not_<typename ColumnT::notNull> )); // IS NULL conditions on NOT NULL columns don't make sense
+    return ConditionValueLeaf<ColumnT, SqlCondition::Is, QVariant>();
+}
+
+/**
+ * Creates a LIKE condition.
+ * @tparam ColumnT The column type to match the pattern against, must have a string type.
+ */
+template <typename ColumnT>
+ConditionValueLeaf<ColumnT, SqlCondition::Like, QString>
+like( const ColumnT &, const QString &pattern )
+{
+    BOOST_MPL_ASSERT(( boost::is_same<typename ColumnT::type, QString> )); // pattern matching only works for strings
+    ConditionValueLeaf<ColumnT, SqlCondition::Like, QString> c;
+    c.value = pattern;
+    return c;
+}
+
+}
 
 Q_DECLARE_TYPEINFO( SqlCondition, Q_MOVABLE_TYPE );
 
