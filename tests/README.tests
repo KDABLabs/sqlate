@@ -1,6 +1,0 @@
-Some of the tests need a database to be run, so a test database server is needed or they will fail.
-Curently the requirements are:
-- Postgres database running at "sqlate-postgres" address if run from ctest/make test or on localhost if run manually
-- Postgres must accept non-encrypted connections to the default port 5432
-- there must be an account "sqlate.user" with password "sql123456" and having superuser rights (so it is better to use an isolated test postgres install)
-- there must be an "sqladmins" and "sqlusers" group and the "sqlate.user" must be part of them. "sqladmins" should have wide rights (e.g superuser rights)
