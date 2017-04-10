@@ -46,6 +46,7 @@ public:
 
 private:
     friend class DeleteQueryBuilderTest;
+    friend class DeleteTest;
     bool m_includeSubTables;
 };
 

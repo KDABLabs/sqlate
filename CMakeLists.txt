@@ -54,6 +54,7 @@ include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_
 add_custom_target(headers SOURCES
   Sql.h
   SqlCreateRule.h
+  SqlDelete.h
   SqlExceptions.h
   SqlGlobal.h
   SqlGrantPermission.h
