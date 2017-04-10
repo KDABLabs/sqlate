@@ -58,6 +58,7 @@ add_custom_target(headers SOURCES
   SqlGlobal.h
   SqlGrantPermission.h
   SqlGraphviz.h
+  SqlInsert.h
   SqlSelect.h
 )
 
