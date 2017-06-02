@@ -35,12 +35,14 @@ qb.whereCondition().addValueCondition( Presenters.company, SqlCondition::Equals,
 QSqlQuery query = qb.exec();
 ```
 
-#### Natural SQL syntax in C++ for SELECT, INSERT (more to follow)
+#### Natural SQL syntax in C++ for SELECT, INSERT, DELETE (more to follow)
 
 ```c++
 QSqlQuery query = select(Presenters.name).from(Presenters).where(Presenters.age == 42 && Presenters.company == “KDAB”);
 ...
 QSqlQuery insertQuery = insert().into(Presenters).columns(Presenters.age << 22 & Presenters.company << "KDAB");
+...
+QSqlQuery deleteQuery = del().from(Presenters).where(Presenters.age == 42);
 ```
 
 ### Other features
